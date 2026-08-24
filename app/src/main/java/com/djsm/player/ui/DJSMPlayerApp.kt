@@ -6,7 +6,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -14,6 +13,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import com.djsm.player.core.permission.audioPermission
 import com.djsm.player.data.local.MediaStoreAudioDataSource
+import com.djsm.player.domain.model.Song
 import com.djsm.player.ui.library.LibraryScreen
 import com.djsm.player.ui.permission.AudioPermissionScreen
 import kotlinx.coroutines.Dispatchers
@@ -34,8 +34,8 @@ fun DJSMPlayerApp() {
         )
     }
 
-    var songCount by remember {
-        mutableIntStateOf(0)
+    var songs by remember {
+        mutableStateOf<List<Song>>(emptyList())
     }
 
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -48,13 +48,13 @@ fun DJSMPlayerApp() {
 
         if (hasAudioPermission) {
 
-            songCount = withContext(Dispatchers.IO) {
+            songs = withContext(Dispatchers.IO) {
 
                 val dataSource = MediaStoreAudioDataSource(
                     context = context.applicationContext
                 )
 
-                dataSource.getSongs().size
+                dataSource.getSongs()
             }
         }
     }
@@ -62,7 +62,7 @@ fun DJSMPlayerApp() {
     if (hasAudioPermission) {
 
         LibraryScreen(
-            songCount = songCount
+            songs = songs
         )
 
     } else {
