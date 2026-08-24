@@ -15,8 +15,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
-import androidx.media3.common.MediaItem
-import androidx.media3.common.MediaMetadata
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.NavDisplay
 import com.djsm.player.core.permission.audioPermission
@@ -34,6 +32,7 @@ import com.djsm.player.ui.player.NowPlayingScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import androidx.compose.runtime.rememberUpdatedState
+import com.djsm.player.playback.toMediaItem
 
 @Composable
 fun DJSMPlayerApp() {
@@ -144,24 +143,27 @@ fun DJSMPlayerApp() {
 
                             LibraryScreen(
                                 songs = songs,
-                                onSongClick = { song ->
+                                onSongClick = { selectedSong ->
 
-                                    val mediaItem = MediaItem.Builder()
-                                        .setMediaId(song.id.toString())
-                                        .setUri(song.contentUri)
-                                        .setMediaMetadata(
-                                            MediaMetadata.Builder()
-                                                .setTitle(song.title)
-                                                .setArtist(song.artist)
-                                                .setAlbumTitle(song.album)
-                                                .build()
-                                        )
-                                        .build()
+                                    val startIndex = songs.indexOfFirst { song ->
+                                        song.id == selectedSong.id
+                                    }
 
-                                    currentPlaybackController?.apply {
-                                        setMediaItem(mediaItem)
-                                        prepare()
-                                        play()
+                                    if (startIndex >= 0) {
+
+                                        val mediaItems = songs.map { song ->
+                                            song.toMediaItem()
+                                        }
+
+                                        currentPlaybackController?.apply {
+                                            setMediaItems(
+                                                mediaItems,
+                                                startIndex,
+                                                0L
+                                            )
+                                            prepare()
+                                            play()
+                                        }
                                     }
                                 },
                                 modifier = Modifier.padding(innerPadding)
@@ -176,10 +178,9 @@ fun DJSMPlayerApp() {
 
                         NowPlayingScreen(
                             state = currentPlaybackUiState,
+
                             onPlayPauseClick = {
-
                                 currentPlaybackController?.let { controller ->
-
                                     if (controller.isPlaying) {
                                         controller.pause()
                                     } else {
@@ -187,11 +188,17 @@ fun DJSMPlayerApp() {
                                     }
                                 }
                             },
-                            onSeek = { positionMs ->
 
-                                currentPlaybackController?.seekTo(
-                                    positionMs
-                                )
+                            onPreviousClick = {
+                                currentPlaybackController?.seekToPreviousMediaItem()
+                            },
+
+                            onNextClick = {
+                                currentPlaybackController?.seekToNextMediaItem()
+                            },
+
+                            onSeek = { positionMs ->
+                                currentPlaybackController?.seekTo(positionMs)
                             }
                         )
                     }

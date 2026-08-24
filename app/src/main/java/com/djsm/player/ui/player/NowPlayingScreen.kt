@@ -26,9 +26,11 @@ import com.djsm.player.playback.PlaybackUiState
 fun NowPlayingScreen(
     state: PlaybackUiState,
     onPlayPauseClick: () -> Unit,
+    onPreviousClick: () -> Unit,
+    onNextClick: () -> Unit,
     onSeek: (Long) -> Unit,
     modifier: Modifier = Modifier
-) {
+){
 
     val progress = if (state.durationMs > 0L) {
         state.positionMs
@@ -133,9 +135,7 @@ fun NowPlayingScreen(
         ) {
 
             TextButton(
-                onClick = {
-                    // Previous se implementará con la cola.
-                }
+                onClick = onPreviousClick
             ) {
                 Text("⏮")
             }
@@ -154,9 +154,7 @@ fun NowPlayingScreen(
             }
 
             TextButton(
-                onClick = {
-                    // Next se implementará con la cola.
-                }
+                onClick = onNextClick
             ) {
                 Text("⏭")
             }
