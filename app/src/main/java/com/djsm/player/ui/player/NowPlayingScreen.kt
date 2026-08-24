@@ -21,6 +21,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.djsm.player.playback.PlaybackUiState
+import androidx.media3.common.Player
 
 @Composable
 fun NowPlayingScreen(
@@ -28,8 +29,11 @@ fun NowPlayingScreen(
     onPlayPauseClick: () -> Unit,
     onPreviousClick: () -> Unit,
     onNextClick: () -> Unit,
+    onShuffleClick: () -> Unit,
+    onRepeatClick: () -> Unit,
     onSeek: (Long) -> Unit,
     modifier: Modifier = Modifier
+
 ){
 
     val progress = if (state.durationMs > 0L) {
@@ -135,6 +139,18 @@ fun NowPlayingScreen(
         ) {
 
             TextButton(
+                onClick = onShuffleClick
+            ) {
+                Text(
+                    text = if (state.shuffleEnabled) {
+                        "🔀✓"
+                    } else {
+                        "🔀"
+                    }
+                )
+            }
+
+            TextButton(
                 onClick = onPreviousClick
             ) {
                 Text("⏮")
@@ -148,8 +164,7 @@ fun NowPlayingScreen(
                         "⏸"
                     } else {
                         "▶"
-                    },
-                    textAlign = TextAlign.Center
+                    }
                 )
             }
 
@@ -158,10 +173,21 @@ fun NowPlayingScreen(
             ) {
                 Text("⏭")
             }
+
+            TextButton(
+                onClick = onRepeatClick
+            ) {
+                Text(
+                    text = when (state.repeatMode) {
+                        Player.REPEAT_MODE_ONE -> "🔂"
+                        Player.REPEAT_MODE_ALL -> "🔁"
+                        else -> "↪"
+                    }
+                )
+            }
         }
     }
 }
-
 private fun formatPlaybackTime(
     durationMs: Long
 ): String {

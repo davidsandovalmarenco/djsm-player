@@ -33,6 +33,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import androidx.compose.runtime.rememberUpdatedState
 import com.djsm.player.playback.toMediaItem
+import androidx.media3.common.Player
 
 @Composable
 fun DJSMPlayerApp() {
@@ -185,6 +186,32 @@ fun DJSMPlayerApp() {
                                         controller.pause()
                                     } else {
                                         controller.play()
+                                    }
+                                }
+                            },
+
+                            onShuffleClick = {
+
+                                currentPlaybackController?.let { controller ->
+                                    controller.shuffleModeEnabled =
+                                        !controller.shuffleModeEnabled
+                                }
+                            },
+
+                            onRepeatClick = {
+
+                                currentPlaybackController?.let { controller ->
+
+                                    controller.repeatMode = when (controller.repeatMode) {
+
+                                        Player.REPEAT_MODE_OFF ->
+                                            Player.REPEAT_MODE_ALL
+
+                                        Player.REPEAT_MODE_ALL ->
+                                            Player.REPEAT_MODE_ONE
+
+                                        else ->
+                                            Player.REPEAT_MODE_OFF
                                     }
                                 }
                             },
