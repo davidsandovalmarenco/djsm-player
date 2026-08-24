@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.djsm.player.playback.PlaybackUiState
+import androidx.compose.material3.LinearProgressIndicator
 
 @Composable
 fun MiniPlayer(
@@ -26,11 +27,23 @@ fun MiniPlayer(
         return
     }
 
+    val progress = if (state.durationMs > 0L) {
+        (state.positionMs.toFloat() / state.durationMs.toFloat())
+            .coerceIn(0f, 1f)
+    } else {
+        0f
+    }
+
     Column(
         modifier = modifier.fillMaxWidth()
     ) {
 
         HorizontalDivider()
+
+        LinearProgressIndicator(
+            progress = { progress },
+            modifier = Modifier.fillMaxWidth()
+        )
 
         Row(
             modifier = Modifier
