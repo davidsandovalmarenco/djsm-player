@@ -15,11 +15,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.djsm.player.playback.PlaybackUiState
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.foundation.clickable
 
 @Composable
 fun MiniPlayer(
     state: PlaybackUiState,
     onPlayPauseClick: () -> Unit,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -36,7 +38,7 @@ fun MiniPlayer(
 
     Column(
         modifier = modifier.fillMaxWidth()
-    ) {
+    ){
 
         HorizontalDivider()
 
@@ -48,6 +50,7 @@ fun MiniPlayer(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .clickable(onClick = onClick)
                 .padding(
                     start = 16.dp,
                     end = 8.dp,
