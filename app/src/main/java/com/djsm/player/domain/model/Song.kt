@@ -1,0 +1,15 @@
+package com.djsm.player.domain.model
+
+data class Song(
+    val id: Long,
+    val contentUri: String,
+    val title: String,
+    val artist: String,
+    val album: String,
+    val albumId: Long,
+    val durationMs: Long,
+    val trackNumber: Int?,
+    val year: Int?,
+    val mimeType: String?,
+    val dateAddedSeconds: Long
+)
