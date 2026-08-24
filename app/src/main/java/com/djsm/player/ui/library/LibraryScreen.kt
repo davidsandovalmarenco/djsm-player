@@ -17,8 +17,9 @@ import com.djsm.player.ui.components.SongListItem
 @Composable
 fun LibraryScreen(
     songs: List<Song>,
+    onSongClick: (Song) -> Unit,
     modifier: Modifier = Modifier
-) {
+){
     Column(
         modifier = modifier.fillMaxSize()
     ) {
@@ -51,7 +52,10 @@ fun LibraryScreen(
             ) { song ->
 
                 SongListItem(
-                    song = song
+                    song = song,
+                    onClick = {
+                        onSongClick(song)
+                    }
                 )
 
                 HorizontalDivider()

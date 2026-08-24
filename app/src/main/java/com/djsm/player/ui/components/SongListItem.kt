@@ -14,15 +14,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.djsm.player.domain.model.Song
+import androidx.compose.foundation.clickable
 
 @Composable
 fun SongListItem(
     song: Song,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
+            .clickable(onClick = onClick)
             .padding(
                 horizontal = 20.dp,
                 vertical = 14.dp

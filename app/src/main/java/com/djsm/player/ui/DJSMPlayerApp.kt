@@ -18,12 +18,16 @@ import com.djsm.player.ui.library.LibraryScreen
 import com.djsm.player.ui.permission.AudioPermissionScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import androidx.media3.common.MediaItem
+import androidx.media3.common.MediaMetadata
+import com.djsm.player.playback.rememberPlaybackController
 
 @Composable
 fun DJSMPlayerApp() {
 
     val context = LocalContext.current
     val permission = audioPermission()
+    val playbackController = rememberPlaybackController()
 
     var hasAudioPermission by remember {
         mutableStateOf(
@@ -62,7 +66,27 @@ fun DJSMPlayerApp() {
     if (hasAudioPermission) {
 
         LibraryScreen(
-            songs = songs
+            songs = songs,
+            onSongClick = { song ->
+
+                val mediaItem = MediaItem.Builder()
+                    .setMediaId(song.id.toString())
+                    .setUri(song.contentUri)
+                    .setMediaMetadata(
+                        MediaMetadata.Builder()
+                            .setTitle(song.title)
+                            .setArtist(song.artist)
+                            .setAlbumTitle(song.album)
+                            .build()
+                    )
+                    .build()
+
+                playbackController?.apply {
+                    setMediaItem(mediaItem)
+                    prepare()
+                    play()
+                }
+            }
         )
 
     } else {
