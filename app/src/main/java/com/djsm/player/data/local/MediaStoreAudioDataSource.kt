@@ -80,8 +80,14 @@ class MediaStoreAudioDataSource(
                     id = id,
                     contentUri = contentUri.toString(),
                     title = cursor.getString(titleColumn) ?: "Unknown title",
-                    artist = cursor.getString(artistColumn) ?: "Unknown artist",
-                    album = cursor.getString(albumColumn) ?: "Unknown album",
+                    artist = normalizeMetadata(
+                        value = cursor.getString(artistColumn),
+                        fallback = "Artista desconocido"
+                    ),
+                    album = normalizeMetadata(
+                        value = cursor.getString(albumColumn),
+                        fallback = "Álbum desconocido"
+                    ),
                     albumId = cursor.getLong(albumIdColumn),
                     durationMs = cursor.getLong(durationColumn),
                     trackNumber = cursor.getInt(trackColumn).takeIf { it > 0 },
@@ -95,5 +101,18 @@ class MediaStoreAudioDataSource(
         }
 
         return songs
+    }
+    private fun normalizeMetadata(
+        value: String?,
+        fallback: String
+    ): String {
+        return if (
+            value.isNullOrBlank() ||
+            value.equals("<unknown>", ignoreCase = true)
+        ) {
+            fallback
+        } else {
+            value
+        }
     }
 }
