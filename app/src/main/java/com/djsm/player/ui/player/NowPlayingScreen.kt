@@ -22,6 +22,16 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.djsm.player.playback.PlaybackUiState
 import androidx.media3.common.Player
+import android.graphics.Bitmap
+import androidx.compose.foundation.Image
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import com.djsm.player.data.local.ArtworkLoader
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Composable
 fun NowPlayingScreen(
@@ -35,6 +45,28 @@ fun NowPlayingScreen(
     modifier: Modifier = Modifier
 
 ){
+
+    val context = LocalContext.current
+
+    val artwork by produceState<Bitmap?>(
+        initialValue = null,
+        key1 = state.contentUri,
+        key2 = state.albumId
+    ) {
+
+        value = state.contentUri?.let { contentUri ->
+
+            withContext(Dispatchers.IO) {
+
+                ArtworkLoader(
+                    context.applicationContext
+                ).loadArtwork(
+                    contentUri = contentUri,
+                    albumId = state.albumId
+                )
+            }
+        }
+    }
 
     val progress = if (state.durationMs > 0L) {
         state.positionMs
@@ -66,10 +98,23 @@ fun NowPlayingScreen(
                 .aspectRatio(1f),
             contentAlignment = Alignment.Center
         ) {
-            Text(
-                text = "♪",
-                style = MaterialTheme.typography.displayLarge
-            )
+
+            if (artwork != null) {
+
+                Image(
+                    bitmap = artwork!!.asImageBitmap(),
+                    contentDescription = "Portada de ${state.title}",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+
+            } else {
+
+                Text(
+                    text = "♪",
+                    style = MaterialTheme.typography.displayLarge
+                )
+            }
         }
 
         Spacer(

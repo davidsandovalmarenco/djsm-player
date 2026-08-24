@@ -3,8 +3,13 @@ package com.djsm.player.playback
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import com.djsm.player.domain.model.Song
+import android.os.Bundle
 
 fun Song.toMediaItem(): MediaItem {
+
+    val extras = Bundle().apply {
+        putLong("albumId", albumId)
+    }
 
     return MediaItem.Builder()
         .setMediaId(id.toString())
@@ -14,6 +19,7 @@ fun Song.toMediaItem(): MediaItem {
                 .setTitle(title)
                 .setArtist(artist)
                 .setAlbumTitle(album)
+                .setExtras(extras)
                 .build()
         )
         .build()

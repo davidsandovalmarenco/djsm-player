@@ -92,6 +92,13 @@ private fun Player.toPlaybackUiState(): PlaybackUiState {
         ?: 0L
 
     return PlaybackUiState(
+        contentUri = currentItem
+            ?.localConfiguration
+            ?.uri
+            ?.toString(),
+        albumId = metadata.extras
+            ?.getLong("albumId")
+            ?.takeIf { it > 0L },
         mediaId = currentItem?.mediaId,
         title = metadata.title?.toString().orEmpty(),
         artist = metadata.artist?.toString().orEmpty(),
@@ -99,5 +106,6 @@ private fun Player.toPlaybackUiState(): PlaybackUiState {
         hasMedia = currentItem != null,
         positionMs = currentPosition.coerceAtLeast(0L),
         durationMs = safeDuration
+
     )
 }
