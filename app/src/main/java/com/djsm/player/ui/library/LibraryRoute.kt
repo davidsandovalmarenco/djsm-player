@@ -26,11 +26,13 @@ fun LibraryRoute(
 ) {
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
+    val sortOption by viewModel.sortOption.collectAsStateWithLifecycle()
+    val sortOrder by viewModel.sortOrder.collectAsStateWithLifecycle()
 
     when (val state = uiState) {
 
         is LibraryUiState.Loading -> {
-
             Box(
                 modifier = modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -47,19 +49,31 @@ fun LibraryRoute(
                 Text("No se encontraron canciones en el dispositivo")
             }
         }
+        
+        is LibraryUiState.NoSearchResults -> {
+            LibraryScreen(
+                songs = emptyList(),
+                searchQuery = searchQuery,
+                onSearchQueryChange = viewModel::updateSearchQuery,
+                sortOption = sortOption,
+                onSortOptionChange = viewModel::updateSortOption,
+                sortOrder = sortOrder,
+                onSortOrderToggle = viewModel::toggleSortOrder,
+                onSongClick = {},
+                modifier = modifier,
+                isNoSearchResults = true
+            )
+        }
 
         is LibraryUiState.Error -> {
-
             Column(
                 modifier = modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-
                 Text(
                     text = state.message
                 )
-
                 Button(
                     onClick = viewModel::loadSongs
                 ) {
@@ -69,17 +83,22 @@ fun LibraryRoute(
         }
 
         is LibraryUiState.Success -> {
-
             LibraryScreen(
                 songs = state.songs,
+                searchQuery = searchQuery,
+                onSearchQueryChange = viewModel::updateSearchQuery,
+                sortOption = sortOption,
+                onSortOptionChange = viewModel::updateSortOption,
+                sortOrder = sortOrder,
+                onSortOrderToggle = viewModel::toggleSortOrder,
                 onSongClick = { selectedSong ->
-
                     onSongClick(
                         selectedSong,
                         state.songs
                     )
                 },
-                modifier = modifier
+                modifier = modifier,
+                isNoSearchResults = false
             )
         }
     }
