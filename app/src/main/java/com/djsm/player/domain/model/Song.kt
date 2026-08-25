@@ -12,5 +12,9 @@ data class Song(
     val trackNumber: Int?,
     val year: Int?,
     val mimeType: String?,
-    val dateAddedSeconds: Long
+    val dateAddedSeconds: Long,
+    val folderId: String,
+    val folderName: String,
+    val genreId: Long,
+    val genre: String
 )

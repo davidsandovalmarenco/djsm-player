@@ -15,8 +15,8 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -29,6 +29,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.djsm.player.domain.model.Album
 import com.djsm.player.domain.model.Artist
+import com.djsm.player.domain.model.Folder
+import com.djsm.player.domain.model.Genre
 import com.djsm.player.domain.model.Song
 import com.djsm.player.domain.model.SortOption
 import com.djsm.player.domain.model.SortOrder
@@ -39,6 +41,8 @@ fun LibraryScreen(
     songs: List<Song>,
     albums: List<Album>,
     artists: List<Artist>,
+    folders: List<Folder>,
+    genres: List<Genre>,
     searchQuery: String,
     onSearchQueryChange: (String) -> Unit,
     sortOption: SortOption,
@@ -48,11 +52,13 @@ fun LibraryScreen(
     onSongClick: (Song) -> Unit,
     onAlbumClick: (Album) -> Unit,
     onArtistClick: (Artist) -> Unit,
+    onFolderClick: (Folder) -> Unit,
+    onGenreClick: (Genre) -> Unit,
     modifier: Modifier = Modifier,
     isNoSearchResults: Boolean = false
 ) {
     var selectedTabIndex by remember { mutableIntStateOf(0) }
-    val tabs = listOf("Songs", "Albums", "Artists")
+    val tabs = listOf("Songs", "Albums", "Artists", "Folders", "Genres")
 
     Column(
         modifier = modifier.fillMaxSize()
@@ -73,7 +79,10 @@ fun LibraryScreen(
             singleLine = true
         )
 
-        TabRow(selectedTabIndex = selectedTabIndex) {
+        ScrollableTabRow(
+            selectedTabIndex = selectedTabIndex,
+            edgePadding = 20.dp
+        ) {
             tabs.forEachIndexed { index, title ->
                 Tab(
                     selected = selectedTabIndex == index,
@@ -93,6 +102,8 @@ fun LibraryScreen(
                 0 -> "${songs.size} canciones"
                 1 -> "${albums.size} álbumes"
                 2 -> "${artists.size} artistas"
+                3 -> "${folders.size} carpetas"
+                4 -> "${genres.size} géneros"
                 else -> ""
             }
             Text(
@@ -188,6 +199,48 @@ fun LibraryScreen(
                                 Text(artist.name, style = MaterialTheme.typography.bodyLarge)
                                 Text(
                                     text = "${artist.albumCount} álbumes • ${artist.songCount} canciones",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            HorizontalDivider()
+                        }
+                    }
+                    3 -> {
+                        items(
+                            items = folders,
+                            key = { it.id }
+                        ) { folder ->
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { onFolderClick(folder) }
+                                    .padding(horizontal = 20.dp, vertical = 12.dp)
+                            ) {
+                                Text(folder.name, style = MaterialTheme.typography.bodyLarge)
+                                Text(
+                                    text = "${folder.songCount} canciones",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            HorizontalDivider()
+                        }
+                    }
+                    4 -> {
+                        items(
+                            items = genres,
+                            key = { it.id }
+                        ) { genre ->
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { onGenreClick(genre) }
+                                    .padding(horizontal = 20.dp, vertical = 12.dp)
+                            ) {
+                                Text(genre.name, style = MaterialTheme.typography.bodyLarge)
+                                Text(
+                                    text = "${genre.songCount} canciones",
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )

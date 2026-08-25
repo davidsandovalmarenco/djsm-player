@@ -11,20 +11,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.djsm.player.domain.model.Song
 
 @Composable
 fun LibraryRoute(
+    viewModel: LibraryViewModel,
     onSongClick: (
         selectedSong: Song,
         songs: List<Song>
     ) -> Unit,
     onAlbumClick: (Long) -> Unit,
     onArtistClick: (Long) -> Unit,
-    modifier: Modifier = Modifier,
-    viewModel: LibraryViewModel = hiltViewModel()
+    onFolderClick: (String) -> Unit,
+    onGenreClick: (Long) -> Unit,
+    modifier: Modifier = Modifier
 ) {
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -57,6 +58,8 @@ fun LibraryRoute(
                 songs = emptyList(),
                 albums = emptyList(),
                 artists = emptyList(),
+                folders = emptyList(),
+                genres = emptyList(),
                 searchQuery = searchQuery,
                 onSearchQueryChange = viewModel::updateSearchQuery,
                 sortOption = sortOption,
@@ -66,6 +69,8 @@ fun LibraryRoute(
                 onSongClick = {},
                 onAlbumClick = {},
                 onArtistClick = {},
+                onFolderClick = {},
+                onGenreClick = {},
                 modifier = modifier,
                 isNoSearchResults = true
             )
@@ -93,6 +98,8 @@ fun LibraryRoute(
                 songs = state.songs,
                 albums = state.albums,
                 artists = state.artists,
+                folders = state.folders,
+                genres = state.genres,
                 searchQuery = searchQuery,
                 onSearchQueryChange = viewModel::updateSearchQuery,
                 sortOption = sortOption,
@@ -110,6 +117,12 @@ fun LibraryRoute(
                 },
                 onArtistClick = { artist ->
                     onArtistClick(artist.id)
+                },
+                onFolderClick = { folder ->
+                    onFolderClick(folder.id)
+                },
+                onGenreClick = { genre ->
+                    onGenreClick(genre.id)
                 },
                 modifier = modifier,
                 isNoSearchResults = false

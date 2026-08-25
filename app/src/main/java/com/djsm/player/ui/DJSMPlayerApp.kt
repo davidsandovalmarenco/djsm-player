@@ -159,6 +159,12 @@ fun DJSMPlayerApp() {
                                 onArtistClick = { artistId ->
                                     backStack.add(com.djsm.player.navigation.ArtistDetailRoute(artistId))
                                 },
+                                onFolderClick = { folderId ->
+                                    backStack.add(com.djsm.player.navigation.FolderDetailRoute(folderId))
+                                },
+                                onGenreClick = { genreId ->
+                                    backStack.add(com.djsm.player.navigation.GenreDetailRoute(genreId))
+                                },
                                 modifier = Modifier.padding(innerPadding)
                             )
                         }
@@ -222,6 +228,82 @@ fun DJSMPlayerApp() {
                         ) { innerPadding ->
                             com.djsm.player.ui.library.ArtistDetailRoute(
                                 artistId = route.artistId,
+                                viewModel = libraryViewModel,
+                                onBack = { backStack.removeLastOrNull() },
+                                onSongClick = { selectedSong, songs ->
+                                    val startIndex = songs.indexOfFirst { it.id == selectedSong.id }
+                                    if (startIndex >= 0) {
+                                        val mediaItems = songs.map { it.toMediaItem() }
+                                        currentPlaybackController?.apply {
+                                            setMediaItems(mediaItems, startIndex, 0L)
+                                            prepare()
+                                            play()
+                                        }
+                                    }
+                                },
+                                modifier = Modifier.padding(innerPadding)
+                            )
+                        }
+                    }
+                }
+
+                is com.djsm.player.navigation.FolderDetailRoute -> {
+                    NavEntry(route) {
+                        Scaffold(
+                            bottomBar = {
+                                MiniPlayer(
+                                    state = currentPlaybackUiState,
+                                    onPlayPauseClick = {
+                                        currentPlaybackController?.let { controller ->
+                                            if (controller.isPlaying) controller.pause() else controller.play()
+                                        }
+                                    },
+                                    onClick = {
+                                        backStack.add(NowPlayingRoute)
+                                    }
+                                )
+                            }
+                        ) { innerPadding ->
+                            com.djsm.player.ui.library.FolderDetailRoute(
+                                folderId = route.folderId,
+                                viewModel = libraryViewModel,
+                                onBack = { backStack.removeLastOrNull() },
+                                onSongClick = { selectedSong, songs ->
+                                    val startIndex = songs.indexOfFirst { it.id == selectedSong.id }
+                                    if (startIndex >= 0) {
+                                        val mediaItems = songs.map { it.toMediaItem() }
+                                        currentPlaybackController?.apply {
+                                            setMediaItems(mediaItems, startIndex, 0L)
+                                            prepare()
+                                            play()
+                                        }
+                                    }
+                                },
+                                modifier = Modifier.padding(innerPadding)
+                            )
+                        }
+                    }
+                }
+
+                is com.djsm.player.navigation.GenreDetailRoute -> {
+                    NavEntry(route) {
+                        Scaffold(
+                            bottomBar = {
+                                MiniPlayer(
+                                    state = currentPlaybackUiState,
+                                    onPlayPauseClick = {
+                                        currentPlaybackController?.let { controller ->
+                                            if (controller.isPlaying) controller.pause() else controller.play()
+                                        }
+                                    },
+                                    onClick = {
+                                        backStack.add(NowPlayingRoute)
+                                    }
+                                )
+                            }
+                        ) { innerPadding ->
+                            com.djsm.player.ui.library.GenreDetailRoute(
+                                genreId = route.genreId,
                                 viewModel = libraryViewModel,
                                 onBack = { backStack.removeLastOrNull() },
                                 onSongClick = { selectedSong, songs ->

@@ -8,4 +8,8 @@ data class AlbumDetailRoute(val albumId: Long) : AppRoute
 
 data class ArtistDetailRoute(val artistId: Long) : AppRoute
 
+data class FolderDetailRoute(val folderId: String) : AppRoute
+
+data class GenreDetailRoute(val genreId: Long) : AppRoute
+
 data object NowPlayingRoute : AppRoute

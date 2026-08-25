@@ -74,6 +74,26 @@ class LibraryViewModel @Inject constructor(
                 )
             }
 
+            val baseFolders = songs.groupBy { it.folderId }.map { (folderId, folderSongs) ->
+                val firstSong = folderSongs.first()
+                com.djsm.player.domain.model.Folder(
+                    id = folderId,
+                    name = firstSong.folderName,
+                    songCount = folderSongs.size,
+                    songs = folderSongs.sortedBy { it.title.lowercase() }
+                )
+            }
+
+            val baseGenres = songs.groupBy { it.genreId }.map { (genreId, genreSongs) ->
+                val firstSong = genreSongs.first()
+                com.djsm.player.domain.model.Genre(
+                    id = genreId,
+                    name = firstSong.genre,
+                    songCount = genreSongs.size,
+                    songs = genreSongs.sortedBy { it.title.lowercase() }
+                )
+            }
+
             val filteredSongs = if (query.isBlank()) {
                 songs
             } else {
@@ -93,7 +113,15 @@ class LibraryViewModel @Inject constructor(
                 it.name.contains(query, ignoreCase = true)
             }
 
-            if (filteredSongs.isEmpty() && filteredAlbums.isEmpty() && filteredArtists.isEmpty() && query.isNotBlank()) {
+            val filteredFolders = if (query.isBlank()) baseFolders else baseFolders.filter {
+                it.name.contains(query, ignoreCase = true)
+            }
+
+            val filteredGenres = if (query.isBlank()) baseGenres else baseGenres.filter {
+                it.name.contains(query, ignoreCase = true)
+            }
+
+            if (filteredSongs.isEmpty() && filteredAlbums.isEmpty() && filteredArtists.isEmpty() && filteredFolders.isEmpty() && filteredGenres.isEmpty() && query.isNotBlank()) {
                 return@combine LibraryUiState.NoSearchResults(query)
             }
 
@@ -123,10 +151,26 @@ class LibraryViewModel @Inject constructor(
                 if (order == SortOrder.DESCENDING) it.reversed() else it
             }
 
+            val sortedFolders = when (option) {
+                SortOption.TITLE, SortOption.ARTIST, SortOption.ALBUM -> filteredFolders.sortedBy { it.name.lowercase() }
+                SortOption.DURATION, SortOption.DATE_ADDED -> filteredFolders.sortedBy { it.name.lowercase() }
+            }.let {
+                if (order == SortOrder.DESCENDING) it.reversed() else it
+            }
+
+            val sortedGenres = when (option) {
+                SortOption.TITLE, SortOption.ARTIST, SortOption.ALBUM -> filteredGenres.sortedBy { it.name.lowercase() }
+                SortOption.DURATION, SortOption.DATE_ADDED -> filteredGenres.sortedBy { it.name.lowercase() }
+            }.let {
+                if (order == SortOrder.DESCENDING) it.reversed() else it
+            }
+
             LibraryUiState.Success(
                 songs = sortedSongs,
                 albums = sortedAlbums,
-                artists = sortedArtists
+                artists = sortedArtists,
+                folders = sortedFolders,
+                genres = sortedGenres
             )
         }
         .flowOn(Dispatchers.Default)
