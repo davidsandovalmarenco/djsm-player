@@ -4,9 +4,11 @@ import android.content.ContentUris
 import android.content.Context
 import android.provider.MediaStore
 import com.djsm.player.domain.model.Song
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
 
-class MediaStoreAudioDataSource(
-    private val context: Context
+class MediaStoreAudioDataSource @Inject constructor(
+    @param:ApplicationContext private val context: Context
 ) {
 
     fun getSongs(): List<Song> {
