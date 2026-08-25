@@ -27,9 +27,9 @@ fun LibraryRoute(
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    when {
+    when (val state = uiState) {
 
-        uiState.isLoading -> {
+        is LibraryUiState.Loading -> {
 
             Box(
                 modifier = modifier.fillMaxSize(),
@@ -39,7 +39,16 @@ fun LibraryRoute(
             }
         }
 
-        uiState.errorMessage != null -> {
+        is LibraryUiState.Empty -> {
+            Box(
+                modifier = modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("No se encontraron canciones en el dispositivo")
+            }
+        }
+
+        is LibraryUiState.Error -> {
 
             Column(
                 modifier = modifier.fillMaxSize(),
@@ -48,8 +57,7 @@ fun LibraryRoute(
             ) {
 
                 Text(
-                    text = uiState.errorMessage
-                        ?: "No se pudo cargar la biblioteca"
+                    text = state.message
                 )
 
                 Button(
@@ -60,15 +68,15 @@ fun LibraryRoute(
             }
         }
 
-        else -> {
+        is LibraryUiState.Success -> {
 
             LibraryScreen(
-                songs = uiState.songs,
+                songs = state.songs,
                 onSongClick = { selectedSong ->
 
                     onSongClick(
                         selectedSong,
-                        uiState.songs
+                        state.songs
                     )
                 },
                 modifier = modifier

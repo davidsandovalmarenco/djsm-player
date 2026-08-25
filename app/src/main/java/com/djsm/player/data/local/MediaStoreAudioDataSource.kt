@@ -2,14 +2,46 @@ package com.djsm.player.data.local
 
 import android.content.ContentUris
 import android.content.Context
+import android.database.ContentObserver
+import android.net.Uri
 import android.provider.MediaStore
 import com.djsm.player.domain.model.Song
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.conflate
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class MediaStoreAudioDataSource @Inject constructor(
     @param:ApplicationContext private val context: Context
 ) {
+
+    fun observeSongs(): Flow<List<Song>> = callbackFlow {
+        val observer = object : ContentObserver(null) {
+            override fun onChange(selfChange: Boolean) {
+                trySend(Unit)
+            }
+        }
+        
+        context.contentResolver.registerContentObserver(
+            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+            true,
+            observer
+        )
+        
+        trySend(Unit)
+        
+        awaitClose {
+            context.contentResolver.unregisterContentObserver(observer)
+        }
+    }
+        .conflate()
+        .map { getSongs() }
+        .flowOn(Dispatchers.IO)
 
     fun getSongs(): List<Song> {
         val songs = mutableListOf<Song>()
