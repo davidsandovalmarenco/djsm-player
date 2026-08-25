@@ -1,15 +1,16 @@
 package com.djsm.player.data.local
 
+import android.content.ContentUris
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Build
+import android.provider.MediaStore
+import android.util.LruCache
 import android.util.Size
 import com.kyant.taglib.TagLib
-import android.content.ContentUris
-import android.provider.MediaStore
 
 class ArtworkLoader(
     private val context: Context
@@ -18,45 +19,44 @@ class ArtworkLoader(
     fun loadArtwork(
         contentUri: String,
         albumId: Long?
-    ): Bitmap?{
-
-        val uri = Uri.parse(contentUri)
-
-        return loadWithTagLib(uri)
-            ?: loadWithMediaMetadataRetriever(uri)
-            ?: loadWithMediaStore(uri)
-            ?: loadWithAlbumMediaStore(albumId)
-    }
-
-    private fun loadWithAlbumMediaStore(
-        albumId: Long?
     ): Bitmap? {
 
-        if (
-            albumId == null ||
-            albumId <= 0L ||
-            Build.VERSION.SDK_INT < Build.VERSION_CODES.Q
-        ) {
+        val cacheKey = createCacheKey(
+            contentUri = contentUri,
+            albumId = albumId
+        )
+
+        memoryCache.get(cacheKey)?.let { bitmap ->
+            return bitmap
+        }
+
+        if (missingArtworkCache.contains(cacheKey)) {
             return null
         }
 
-        return try {
+        val uri = Uri.parse(contentUri)
 
-            val albumUri = ContentUris.withAppendedId(
-                MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
-                albumId
+        val artwork =
+            loadWithTagLib(uri)
+                ?: loadWithMediaMetadataRetriever(uri)
+                ?: loadWithMediaStore(uri)
+                ?: loadWithAlbumMediaStore(albumId)
+
+        if (artwork != null) {
+
+            memoryCache.put(
+                cacheKey,
+                artwork
             )
 
-            context.contentResolver.loadThumbnail(
-                albumUri,
-                Size(1000, 1000),
-                null
+        } else {
+
+            missingArtworkCache.add(
+                cacheKey
             )
-
-        } catch (_: Exception) {
-
-            null
         }
+
+        return artwork
     }
 
     private fun loadWithTagLib(
@@ -69,10 +69,12 @@ class ArtworkLoader(
                 .openFileDescriptor(uri, "r")
                 ?.use { parcelFileDescriptor ->
 
+                    val duplicatedFd = parcelFileDescriptor
+                        .dup()
+                        .detachFd()
+
                     val pictures = TagLib.getPictures(
-                        parcelFileDescriptor
-                            .dup()
-                            .detachFd()
+                        duplicatedFd
                     )
 
                     val picture =
@@ -118,10 +120,7 @@ class ArtworkLoader(
                 uri
             )
 
-            val artworkBytes =
-                retriever.embeddedPicture
-
-            artworkBytes?.let { bytes ->
+            retriever.embeddedPicture?.let { bytes ->
 
                 BitmapFactory.decodeByteArray(
                     bytes,
@@ -159,6 +158,74 @@ class ArtworkLoader(
         } catch (_: Exception) {
 
             null
+        }
+    }
+
+    private fun loadWithAlbumMediaStore(
+        albumId: Long?
+    ): Bitmap? {
+
+        if (
+            albumId == null ||
+            albumId <= 0L ||
+            Build.VERSION.SDK_INT < Build.VERSION_CODES.Q
+        ) {
+            return null
+        }
+
+        return try {
+
+            val albumUri = ContentUris.withAppendedId(
+                MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
+                albumId
+            )
+
+            context.contentResolver.loadThumbnail(
+                albumUri,
+                Size(1000, 1000),
+                null
+            )
+
+        } catch (_: Exception) {
+
+            null
+        }
+    }
+
+    private fun createCacheKey(
+        contentUri: String,
+        albumId: Long?
+    ): String {
+        return "$contentUri:${albumId ?: 0L}"
+    }
+
+    companion object {
+
+        private val memoryCache = object : LruCache<String, Bitmap>(
+            calculateCacheSize()
+        ) {
+
+            override fun sizeOf(
+                key: String,
+                value: Bitmap
+            ): Int {
+
+                return value.allocationByteCount / 1024
+            }
+        }
+
+        private val missingArtworkCache =
+            mutableSetOf<String>()
+
+        private fun calculateCacheSize(): Int {
+
+            val maxMemoryKb =
+                Runtime.getRuntime()
+                    .maxMemory()
+                    .div(1024)
+                    .toInt()
+
+            return maxMemoryKb / 16
         }
     }
 }

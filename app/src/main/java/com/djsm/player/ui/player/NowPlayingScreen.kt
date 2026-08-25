@@ -1,7 +1,6 @@
 package com.djsm.player.ui.player
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,21 +16,11 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.djsm.player.playback.PlaybackUiState
 import androidx.media3.common.Player
-import android.graphics.Bitmap
-import androidx.compose.foundation.Image
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.produceState
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import com.djsm.player.data.local.ArtworkLoader
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import com.djsm.player.playback.PlaybackUiState
+import com.djsm.player.ui.components.ArtworkImage
 
 @Composable
 fun NowPlayingScreen(
@@ -43,30 +32,7 @@ fun NowPlayingScreen(
     onRepeatClick: () -> Unit,
     onSeek: (Long) -> Unit,
     modifier: Modifier = Modifier
-
-){
-
-    val context = LocalContext.current
-
-    val artwork by produceState<Bitmap?>(
-        initialValue = null,
-        key1 = state.contentUri,
-        key2 = state.albumId
-    ) {
-
-        value = state.contentUri?.let { contentUri ->
-
-            withContext(Dispatchers.IO) {
-
-                ArtworkLoader(
-                    context.applicationContext
-                ).loadArtwork(
-                    contentUri = contentUri,
-                    albumId = state.albumId
-                )
-            }
-        }
-    }
+) {
 
     val progress = if (state.durationMs > 0L) {
         state.positionMs
@@ -88,34 +54,14 @@ fun NowPlayingScreen(
             modifier = Modifier.height(48.dp)
         )
 
-        /*
-         * Este Box será reemplazado después
-         * por la portada real del álbum.
-         */
-        Box(
+        ArtworkImage(
+            contentUri = state.contentUri,
+            albumId = state.albumId,
+            contentDescription = "Portada de ${state.title}",
             modifier = Modifier
                 .fillMaxWidth()
-                .aspectRatio(1f),
-            contentAlignment = Alignment.Center
-        ) {
-
-            if (artwork != null) {
-
-                Image(
-                    bitmap = artwork!!.asImageBitmap(),
-                    contentDescription = "Portada de ${state.title}",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
-
-            } else {
-
-                Text(
-                    text = "♪",
-                    style = MaterialTheme.typography.displayLarge
-                )
-            }
-        }
+                .aspectRatio(1f)
+        )
 
         Spacer(
             modifier = Modifier.height(32.dp)
@@ -224,24 +170,41 @@ fun NowPlayingScreen(
             ) {
                 Text(
                     text = when (state.repeatMode) {
-                        Player.REPEAT_MODE_ONE -> "🔂"
-                        Player.REPEAT_MODE_ALL -> "🔁"
-                        else -> "↪"
+
+                        Player.REPEAT_MODE_ONE ->
+                            "🔂"
+
+                        Player.REPEAT_MODE_ALL ->
+                            "🔁"
+
+                        else ->
+                            "↪"
                     }
                 )
             }
         }
     }
 }
+
 private fun formatPlaybackTime(
     durationMs: Long
 ): String {
 
-    val safeDuration = durationMs.coerceAtLeast(0L)
+    val safeDuration =
+        durationMs.coerceAtLeast(0L)
 
-    val totalSeconds = safeDuration / 1000
-    val minutes = totalSeconds / 60
-    val seconds = totalSeconds % 60
+    val totalSeconds =
+        safeDuration / 1000
 
-    return "$minutes:${seconds.toString().padStart(2, '0')}"
+    val minutes =
+        totalSeconds / 60
+
+    val seconds =
+        totalSeconds % 60
+
+    return "$minutes:${
+        seconds
+            .toString()
+            .padStart(2, '0')
+    }"
 }
