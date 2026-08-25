@@ -51,6 +51,29 @@ class LibraryViewModel @Inject constructor(
                 return@combine LibraryUiState.Empty
             }
 
+            val baseAlbums = songs.groupBy { it.albumId }.map { (albumId, albumSongs) ->
+                val firstSong = albumSongs.first()
+                com.djsm.player.domain.model.Album(
+                    id = albumId,
+                    name = firstSong.album,
+                    artist = firstSong.artist,
+                    songCount = albumSongs.size,
+                    durationMs = albumSongs.sumOf { it.durationMs },
+                    songs = albumSongs.sortedBy { it.trackNumber ?: 0 }
+                )
+            }
+
+            val baseArtists = songs.groupBy { it.artistId }.map { (artistId, artistSongs) ->
+                val firstSong = artistSongs.first()
+                com.djsm.player.domain.model.Artist(
+                    id = artistId,
+                    name = firstSong.artist,
+                    songCount = artistSongs.size,
+                    albumCount = artistSongs.distinctBy { it.albumId }.size,
+                    songs = artistSongs.sortedBy { it.title.lowercase() }
+                )
+            }
+
             val filteredSongs = if (query.isBlank()) {
                 songs
             } else {
@@ -60,8 +83,17 @@ class LibraryViewModel @Inject constructor(
                     song.album.contains(query, ignoreCase = true)
                 }
             }
+            
+            val filteredAlbums = if (query.isBlank()) baseAlbums else baseAlbums.filter {
+                it.name.contains(query, ignoreCase = true) ||
+                it.artist.contains(query, ignoreCase = true)
+            }
+            
+            val filteredArtists = if (query.isBlank()) baseArtists else baseArtists.filter {
+                it.name.contains(query, ignoreCase = true)
+            }
 
-            if (filteredSongs.isEmpty() && query.isNotBlank()) {
+            if (filteredSongs.isEmpty() && filteredAlbums.isEmpty() && filteredArtists.isEmpty() && query.isNotBlank()) {
                 return@combine LibraryUiState.NoSearchResults(query)
             }
 
@@ -74,8 +106,28 @@ class LibraryViewModel @Inject constructor(
             }.let {
                 if (order == SortOrder.DESCENDING) it.reversed() else it
             }
+            
+            val sortedAlbums = when (option) {
+                SortOption.TITLE, SortOption.ALBUM -> filteredAlbums.sortedBy { it.name.lowercase() }
+                SortOption.ARTIST -> filteredAlbums.sortedBy { it.artist.lowercase() }
+                SortOption.DURATION -> filteredAlbums.sortedBy { it.durationMs }
+                SortOption.DATE_ADDED -> filteredAlbums.sortedBy { it.name.lowercase() }
+            }.let {
+                if (order == SortOrder.DESCENDING) it.reversed() else it
+            }
 
-            LibraryUiState.Success(sortedSongs)
+            val sortedArtists = when (option) {
+                SortOption.TITLE, SortOption.ARTIST, SortOption.ALBUM -> filteredArtists.sortedBy { it.name.lowercase() }
+                SortOption.DURATION, SortOption.DATE_ADDED -> filteredArtists.sortedBy { it.name.lowercase() }
+            }.let {
+                if (order == SortOrder.DESCENDING) it.reversed() else it
+            }
+
+            LibraryUiState.Success(
+                songs = sortedSongs,
+                albums = sortedAlbums,
+                artists = sortedArtists
+            )
         }
         .flowOn(Dispatchers.Default)
         .catch { exception ->

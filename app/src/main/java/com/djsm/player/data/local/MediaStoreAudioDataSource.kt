@@ -50,6 +50,7 @@ class MediaStoreAudioDataSource @Inject constructor(
             MediaStore.Audio.Media._ID,
             MediaStore.Audio.Media.TITLE,
             MediaStore.Audio.Media.ARTIST,
+            MediaStore.Audio.Media.ARTIST_ID,
             MediaStore.Audio.Media.ALBUM,
             MediaStore.Audio.Media.ALBUM_ID,
             MediaStore.Audio.Media.DURATION,
@@ -79,6 +80,9 @@ class MediaStoreAudioDataSource @Inject constructor(
 
             val artistColumn =
                 cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)
+
+            val artistIdColumn =
+                cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST_ID)
 
             val albumColumn =
                 cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM)
@@ -118,6 +122,7 @@ class MediaStoreAudioDataSource @Inject constructor(
                         value = cursor.getString(artistColumn),
                         fallback = "Artista desconocido"
                     ),
+                    artistId = cursor.getLong(artistIdColumn),
                     album = normalizeMetadata(
                         value = cursor.getString(albumColumn),
                         fallback = "Álbum desconocido"

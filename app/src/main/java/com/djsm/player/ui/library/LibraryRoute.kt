@@ -21,6 +21,8 @@ fun LibraryRoute(
         selectedSong: Song,
         songs: List<Song>
     ) -> Unit,
+    onAlbumClick: (Long) -> Unit,
+    onArtistClick: (Long) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: LibraryViewModel = hiltViewModel()
 ) {
@@ -53,6 +55,8 @@ fun LibraryRoute(
         is LibraryUiState.NoSearchResults -> {
             LibraryScreen(
                 songs = emptyList(),
+                albums = emptyList(),
+                artists = emptyList(),
                 searchQuery = searchQuery,
                 onSearchQueryChange = viewModel::updateSearchQuery,
                 sortOption = sortOption,
@@ -60,6 +64,8 @@ fun LibraryRoute(
                 sortOrder = sortOrder,
                 onSortOrderToggle = viewModel::toggleSortOrder,
                 onSongClick = {},
+                onAlbumClick = {},
+                onArtistClick = {},
                 modifier = modifier,
                 isNoSearchResults = true
             )
@@ -85,6 +91,8 @@ fun LibraryRoute(
         is LibraryUiState.Success -> {
             LibraryScreen(
                 songs = state.songs,
+                albums = state.albums,
+                artists = state.artists,
                 searchQuery = searchQuery,
                 onSearchQueryChange = viewModel::updateSearchQuery,
                 sortOption = sortOption,
@@ -96,6 +104,12 @@ fun LibraryRoute(
                         selectedSong,
                         state.songs
                     )
+                },
+                onAlbumClick = { album ->
+                    onAlbumClick(album.id)
+                },
+                onArtistClick = { artist ->
+                    onArtistClick(artist.id)
                 },
                 modifier = modifier,
                 isNoSearchResults = false

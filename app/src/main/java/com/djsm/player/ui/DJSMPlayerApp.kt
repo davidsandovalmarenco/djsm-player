@@ -84,6 +84,8 @@ fun DJSMPlayerApp() {
         return
     }
 
+    val libraryViewModel: com.djsm.player.ui.library.LibraryViewModel = androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel()
+
     NavDisplay(
         backStack = backStack,
         entryDecorators = listOf(
@@ -125,6 +127,7 @@ fun DJSMPlayerApp() {
                         ) { innerPadding ->
 
                             LibraryRoute(
+                                viewModel = libraryViewModel,
                                 onSongClick = { selectedSong, songs ->
 
                                     val startIndex = songs.indexOfFirst { song ->
@@ -145,6 +148,88 @@ fun DJSMPlayerApp() {
                                                 0L
                                             )
 
+                                            prepare()
+                                            play()
+                                        }
+                                    }
+                                },
+                                onAlbumClick = { albumId ->
+                                    backStack.add(com.djsm.player.navigation.AlbumDetailRoute(albumId))
+                                },
+                                onArtistClick = { artistId ->
+                                    backStack.add(com.djsm.player.navigation.ArtistDetailRoute(artistId))
+                                },
+                                modifier = Modifier.padding(innerPadding)
+                            )
+                        }
+                    }
+                }
+
+                is com.djsm.player.navigation.AlbumDetailRoute -> {
+                    NavEntry(route) {
+                        Scaffold(
+                            bottomBar = {
+                                MiniPlayer(
+                                    state = currentPlaybackUiState,
+                                    onPlayPauseClick = {
+                                        currentPlaybackController?.let { controller ->
+                                            if (controller.isPlaying) controller.pause() else controller.play()
+                                        }
+                                    },
+                                    onClick = {
+                                        backStack.add(NowPlayingRoute)
+                                    }
+                                )
+                            }
+                        ) { innerPadding ->
+                            com.djsm.player.ui.library.AlbumDetailRoute(
+                                albumId = route.albumId,
+                                viewModel = libraryViewModel,
+                                onBack = { backStack.removeLastOrNull() },
+                                onSongClick = { selectedSong, songs ->
+                                    val startIndex = songs.indexOfFirst { it.id == selectedSong.id }
+                                    if (startIndex >= 0) {
+                                        val mediaItems = songs.map { it.toMediaItem() }
+                                        currentPlaybackController?.apply {
+                                            setMediaItems(mediaItems, startIndex, 0L)
+                                            prepare()
+                                            play()
+                                        }
+                                    }
+                                },
+                                modifier = Modifier.padding(innerPadding)
+                            )
+                        }
+                    }
+                }
+
+                is com.djsm.player.navigation.ArtistDetailRoute -> {
+                    NavEntry(route) {
+                        Scaffold(
+                            bottomBar = {
+                                MiniPlayer(
+                                    state = currentPlaybackUiState,
+                                    onPlayPauseClick = {
+                                        currentPlaybackController?.let { controller ->
+                                            if (controller.isPlaying) controller.pause() else controller.play()
+                                        }
+                                    },
+                                    onClick = {
+                                        backStack.add(NowPlayingRoute)
+                                    }
+                                )
+                            }
+                        ) { innerPadding ->
+                            com.djsm.player.ui.library.ArtistDetailRoute(
+                                artistId = route.artistId,
+                                viewModel = libraryViewModel,
+                                onBack = { backStack.removeLastOrNull() },
+                                onSongClick = { selectedSong, songs ->
+                                    val startIndex = songs.indexOfFirst { it.id == selectedSong.id }
+                                    if (startIndex >= 0) {
+                                        val mediaItems = songs.map { it.toMediaItem() }
+                                        currentPlaybackController?.apply {
+                                            setMediaItems(mediaItems, startIndex, 0L)
                                             prepare()
                                             play()
                                         }
