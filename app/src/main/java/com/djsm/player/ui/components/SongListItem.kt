@@ -1,10 +1,12 @@
 package com.djsm.player.ui.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -14,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.djsm.player.domain.model.Song
-import androidx.compose.foundation.clickable
 
 @Composable
 fun SongListItem(
@@ -32,6 +33,18 @@ fun SongListItem(
             ),
         verticalAlignment = Alignment.CenterVertically
     ) {
+
+        ArtworkImage(
+            contentUri = song.contentUri.toString(),
+            albumId = song.albumId,
+            contentDescription = "Portada de ${song.title}",
+            modifier = Modifier.size(56.dp)
+        )
+
+        Spacer(
+            modifier = Modifier.width(12.dp)
+        )
+
         Column(
             modifier = Modifier.weight(1f)
         ) {
