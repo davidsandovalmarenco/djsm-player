@@ -60,6 +60,7 @@ fun LibraryRoute(
                 artists = emptyList(),
                 folders = emptyList(),
                 genres = emptyList(),
+                favoriteSongIds = emptySet(),
                 searchQuery = searchQuery,
                 onSearchQueryChange = viewModel::updateSearchQuery,
                 sortOption = sortOption,
@@ -67,6 +68,7 @@ fun LibraryRoute(
                 sortOrder = sortOrder,
                 onSortOrderToggle = viewModel::toggleSortOrder,
                 onSongClick = {},
+                onToggleFavorite = { _, _ -> },
                 onAlbumClick = {},
                 onArtistClick = {},
                 onFolderClick = {},
@@ -100,6 +102,7 @@ fun LibraryRoute(
                 artists = state.artists,
                 folders = state.folders,
                 genres = state.genres,
+                favoriteSongIds = state.favoriteSongIds,
                 searchQuery = searchQuery,
                 onSearchQueryChange = viewModel::updateSearchQuery,
                 sortOption = sortOption,
@@ -112,6 +115,7 @@ fun LibraryRoute(
                         state.songs
                     )
                 },
+                onToggleFavorite = viewModel::toggleFavorite,
                 onAlbumClick = { album ->
                     onAlbumClick(album.id)
                 },

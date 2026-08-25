@@ -59,7 +59,9 @@ fun FolderDetailRoute(
                     ) { song ->
                         SongListItem(
                             song = song,
-                            onClick = { onSongClick(song, folder.songs) }
+                            onClick = { onSongClick(song, folder.songs) },
+                            isFavorite = successState.favoriteSongIds.contains(song.id),
+                            onToggleFavorite = { viewModel.toggleFavorite(song, successState.favoriteSongIds.contains(song.id)) }
                         )
                         HorizontalDivider()
                     }

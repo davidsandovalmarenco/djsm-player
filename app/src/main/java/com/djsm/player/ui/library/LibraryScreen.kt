@@ -43,6 +43,7 @@ fun LibraryScreen(
     artists: List<Artist>,
     folders: List<Folder>,
     genres: List<Genre>,
+    favoriteSongIds: Set<Long>,
     searchQuery: String,
     onSearchQueryChange: (String) -> Unit,
     sortOption: SortOption,
@@ -50,6 +51,7 @@ fun LibraryScreen(
     sortOrder: SortOrder,
     onSortOrderToggle: () -> Unit,
     onSongClick: (Song) -> Unit,
+    onToggleFavorite: (Song, Boolean) -> Unit,
     onAlbumClick: (Album) -> Unit,
     onArtistClick: (Artist) -> Unit,
     onFolderClick: (Folder) -> Unit,
@@ -159,7 +161,9 @@ fun LibraryScreen(
                         ) { song ->
                             SongListItem(
                                 song = song,
-                                onClick = { onSongClick(song) }
+                                onClick = { onSongClick(song) },
+                                isFavorite = favoriteSongIds.contains(song.id),
+                                onToggleFavorite = { onToggleFavorite(song, favoriteSongIds.contains(song.id)) }
                             )
                             HorizontalDivider()
                         }

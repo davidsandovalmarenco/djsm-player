@@ -60,7 +60,9 @@ class MediaStoreAudioDataSource @Inject constructor(
             MediaStore.Audio.Media.TRACK,
             MediaStore.Audio.Media.YEAR,
             MediaStore.Audio.Media.MIME_TYPE,
-            MediaStore.Audio.Media.DATE_ADDED
+            MediaStore.Audio.Media.DATE_ADDED,
+            MediaStore.Audio.Media.DISPLAY_NAME,
+            MediaStore.Audio.Media.SIZE
         )
 
         if (sdkInt >= 29) {
@@ -98,6 +100,8 @@ class MediaStoreAudioDataSource @Inject constructor(
             val yearColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.YEAR)
             val mimeTypeColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.MIME_TYPE)
             val dateAddedColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_ADDED)
+            val displayNameColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME)
+            val sizeColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.SIZE)
 
             val dataColumn = if (sdkInt < 29) cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA) else -1
             val relativePathColumn = if (sdkInt >= 29) cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.RELATIVE_PATH) else -1
@@ -141,6 +145,15 @@ class MediaStoreAudioDataSource @Inject constructor(
                     genreId = genrePair?.first ?: -1L
                     genreName = genrePair?.second ?: "Sin género"
                 }
+                
+                val displayName = cursor.getString(displayNameColumn) ?: ""
+                val sizeBytes = cursor.getLong(sizeColumn)
+                val durationMs = cursor.getLong(durationColumn)
+                
+                val fingerprintStr = "${displayName}_${sizeBytes}_${durationMs}"
+                val digest = java.security.MessageDigest.getInstance("SHA-256")
+                val hashBytes = digest.digest(fingerprintStr.toByteArray(Charsets.UTF_8))
+                val fingerprint = hashBytes.joinToString("") { "%02x".format(it) }
 
                 val song = Song(
                     id = id,
@@ -164,7 +177,10 @@ class MediaStoreAudioDataSource @Inject constructor(
                     folderId = finalFolderId,
                     folderName = finalFolderName,
                     genreId = genreId,
-                    genre = genreName
+                    genre = genreName,
+                    displayName = displayName,
+                    sizeBytes = sizeBytes,
+                    fingerprint = fingerprint
                 )
 
                 songs.add(song)

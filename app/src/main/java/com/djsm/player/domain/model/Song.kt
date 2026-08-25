@@ -16,5 +16,8 @@ data class Song(
     val folderId: String,
     val folderName: String,
     val genreId: Long,
-    val genre: String
+    val genre: String,
+    val displayName: String,
+    val sizeBytes: Long,
+    val fingerprint: String
 )

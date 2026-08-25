@@ -15,7 +15,8 @@ sealed interface LibraryUiState {
         val albums: List<Album>,
         val artists: List<Artist>,
         val folders: List<Folder>,
-        val genres: List<Genre>
+        val genres: List<Genre>,
+        val favoriteSongIds: Set<Long>
     ) : LibraryUiState
     data class Error(val message: String) : LibraryUiState
 }
