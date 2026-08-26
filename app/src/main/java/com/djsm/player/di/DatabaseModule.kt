@@ -20,17 +20,26 @@ object DatabaseModule {
 
     @Provides
     @Singleton
-    fun provideDatabase(@ApplicationContext context: Context): DJSMPlayerDatabase {
+    fun provideDatabase(
+        @ApplicationContext context: Context
+    ): DJSMPlayerDatabase {
         return Room.databaseBuilder(
             context,
             DJSMPlayerDatabase::class.java,
             "djsm_player_database"
-        ).build()
+        )
+            .addMigrations(DJSMPlayerDatabase.MIGRATION_1_2)
+            .build()
     }
 
     @Provides
     fun provideFavoriteDao(database: DJSMPlayerDatabase): FavoriteDao {
         return database.favoriteDao()
+    }
+
+    @Provides
+    fun providePlaylistDao(database: DJSMPlayerDatabase): com.djsm.player.data.local.room.PlaylistDao {
+        return database.playlistDao()
     }
 }
 

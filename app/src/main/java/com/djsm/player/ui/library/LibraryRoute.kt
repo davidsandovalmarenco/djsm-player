@@ -25,6 +25,7 @@ fun LibraryRoute(
     onArtistClick: (Long) -> Unit,
     onFolderClick: (String) -> Unit,
     onGenreClick: (Long) -> Unit,
+    onPlaylistClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -60,6 +61,7 @@ fun LibraryRoute(
                 artists = emptyList(),
                 folders = emptyList(),
                 genres = emptyList(),
+                playlists = emptyList(),
                 favoriteSongIds = emptySet(),
                 searchQuery = searchQuery,
                 onSearchQueryChange = viewModel::updateSearchQuery,
@@ -73,6 +75,9 @@ fun LibraryRoute(
                 onArtistClick = {},
                 onFolderClick = {},
                 onGenreClick = {},
+                onPlaylistClick = {},
+                onCreatePlaylist = viewModel::createPlaylist,
+                onAddSongToPlaylist = viewModel::addSongToPlaylist,
                 modifier = modifier,
                 isNoSearchResults = true
             )
@@ -102,6 +107,7 @@ fun LibraryRoute(
                 artists = state.artists,
                 folders = state.folders,
                 genres = state.genres,
+                playlists = state.playlists,
                 favoriteSongIds = state.favoriteSongIds,
                 searchQuery = searchQuery,
                 onSearchQueryChange = viewModel::updateSearchQuery,
@@ -128,6 +134,11 @@ fun LibraryRoute(
                 onGenreClick = { genre ->
                     onGenreClick(genre.id)
                 },
+                onPlaylistClick = { playlist ->
+                    onPlaylistClick(playlist.id)
+                },
+                onCreatePlaylist = viewModel::createPlaylist,
+                onAddSongToPlaylist = viewModel::addSongToPlaylist,
                 modifier = modifier,
                 isNoSearchResults = false
             )

@@ -16,6 +16,7 @@ sealed interface LibraryUiState {
         val artists: List<Artist>,
         val folders: List<Folder>,
         val genres: List<Genre>,
+        val playlists: List<com.djsm.player.domain.model.Playlist>,
         val favoriteSongIds: Set<Long>
     ) : LibraryUiState
     data class Error(val message: String) : LibraryUiState

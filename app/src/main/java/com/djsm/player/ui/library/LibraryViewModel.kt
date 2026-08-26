@@ -2,11 +2,16 @@ package com.djsm.player.ui.library
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.djsm.player.domain.model.Playlist
+import com.djsm.player.domain.model.Song
 import com.djsm.player.domain.model.SortOption
 import com.djsm.player.domain.model.SortOrder
 import com.djsm.player.domain.repository.MusicRepository
 import com.djsm.player.domain.usecase.favorite.ObserveFavoritesUseCase
 import com.djsm.player.domain.usecase.favorite.ToggleFavoriteUseCase
+import com.djsm.player.domain.usecase.playlist.AddSongToPlaylistUseCase
+import com.djsm.player.domain.usecase.playlist.CreatePlaylistUseCase
+import com.djsm.player.domain.usecase.playlist.ObservePlaylistsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -29,7 +34,10 @@ import javax.inject.Inject
 class LibraryViewModel @Inject constructor(
     private val musicRepository: MusicRepository,
     private val observeFavoritesUseCase: ObserveFavoritesUseCase,
-    private val toggleFavoriteUseCase: ToggleFavoriteUseCase
+    private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
+    private val observePlaylistsUseCase: ObservePlaylistsUseCase,
+    private val createPlaylistUseCase: CreatePlaylistUseCase,
+    private val addSongToPlaylistUseCase: AddSongToPlaylistUseCase
 ) : ViewModel() {
 
     private val _searchQuery = MutableStateFlow("")
@@ -44,10 +52,12 @@ class LibraryViewModel @Inject constructor(
     val uiState: StateFlow<LibraryUiState> = combine(
         musicRepository.observeSongs(),
         observeFavoritesUseCase(),
-        _searchQuery.debounce(300).distinctUntilChanged(),
-        _sortOption,
-        _sortOrder
-    ) { songs, favorites, query, option, order ->
+        observePlaylistsUseCase(),
+        combine(_searchQuery.debounce(300).distinctUntilChanged(), _sortOption, _sortOrder) { q, opt, ord -> Triple(q, opt, ord) }
+    ) { songs, favorites, playlists, searchSortArgs ->
+        val query = searchSortArgs.first
+        val option = searchSortArgs.second
+        val order = searchSortArgs.third
         
         if (songs.isEmpty()) {
             return@combine LibraryUiState.Empty
@@ -189,6 +199,7 @@ class LibraryViewModel @Inject constructor(
             artists = sortedArtists,
             folders = sortedFolders,
             genres = sortedGenres,
+            playlists = playlists,
             favoriteSongIds = resolvedFavoriteIds
         )
     }
@@ -230,5 +241,17 @@ class LibraryViewModel @Inject constructor(
 
     fun loadSongs() {
         // Obsoleto si siempre se alimenta de content observer
+    }
+
+    fun createPlaylist(name: String) {
+        viewModelScope.launch {
+            createPlaylistUseCase(name)
+        }
+    }
+
+    fun addSongToPlaylist(playlistId: String, song: Song) {
+        viewModelScope.launch {
+            addSongToPlaylistUseCase(playlistId, song)
+        }
     }
 }

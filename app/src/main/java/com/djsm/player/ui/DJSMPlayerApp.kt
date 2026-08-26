@@ -165,6 +165,9 @@ fun DJSMPlayerApp() {
                                 onGenreClick = { genreId ->
                                     backStack.add(com.djsm.player.navigation.GenreDetailRoute(genreId))
                                 },
+                                onPlaylistClick = { playlistId ->
+                                    backStack.add(com.djsm.player.navigation.PlaylistDetailRoute(playlistId))
+                                },
                                 modifier = Modifier.padding(innerPadding)
                             )
                         }
@@ -315,6 +318,40 @@ fun DJSMPlayerApp() {
                                             prepare()
                                             play()
                                         }
+                                    }
+                                },
+                                modifier = Modifier.padding(innerPadding)
+                            )
+                        }
+                    }
+                }
+
+                is com.djsm.player.navigation.PlaylistDetailRoute -> {
+                    NavEntry(route) {
+                        Scaffold(
+                            bottomBar = {
+                                MiniPlayer(
+                                    state = currentPlaybackUiState,
+                                    onPlayPauseClick = {
+                                        currentPlaybackController?.let { controller ->
+                                            if (controller.isPlaying) controller.pause() else controller.play()
+                                        }
+                                    },
+                                    onClick = {
+                                        backStack.add(NowPlayingRoute)
+                                    }
+                                )
+                            }
+                        ) { innerPadding ->
+                            com.djsm.player.ui.library.PlaylistDetailRoute(
+                                playlistId = route.playlistId,
+                                onBackClick = { backStack.removeLastOrNull() },
+                                onSongClick = { songs, index ->
+                                    val mediaItems = songs.map { it.toMediaItem() }
+                                    currentPlaybackController?.apply {
+                                        setMediaItems(mediaItems, index, 0L)
+                                        prepare()
+                                        play()
                                     }
                                 },
                                 modifier = Modifier.padding(innerPadding)

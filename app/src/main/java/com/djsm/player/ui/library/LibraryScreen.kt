@@ -15,6 +15,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
@@ -31,6 +32,7 @@ import com.djsm.player.domain.model.Album
 import com.djsm.player.domain.model.Artist
 import com.djsm.player.domain.model.Folder
 import com.djsm.player.domain.model.Genre
+import com.djsm.player.domain.model.Playlist
 import com.djsm.player.domain.model.Song
 import com.djsm.player.domain.model.SortOption
 import com.djsm.player.domain.model.SortOrder
@@ -43,6 +45,7 @@ fun LibraryScreen(
     artists: List<Artist>,
     folders: List<Folder>,
     genres: List<Genre>,
+    playlists: List<Playlist>,
     favoriteSongIds: Set<Long>,
     searchQuery: String,
     onSearchQueryChange: (String) -> Unit,
@@ -56,11 +59,42 @@ fun LibraryScreen(
     onArtistClick: (Artist) -> Unit,
     onFolderClick: (Folder) -> Unit,
     onGenreClick: (Genre) -> Unit,
+    onPlaylistClick: (Playlist) -> Unit,
+    onCreatePlaylist: (String) -> Unit,
+    onAddSongToPlaylist: (String, Song) -> Unit,
     modifier: Modifier = Modifier,
     isNoSearchResults: Boolean = false
 ) {
     var selectedTabIndex by remember { mutableIntStateOf(0) }
-    val tabs = listOf("Songs", "Albums", "Artists", "Folders", "Genres")
+    val tabs = listOf("Songs", "Albums", "Artists", "Folders", "Genres", "Playlists")
+
+    var songToAddToPlaylist by remember { mutableStateOf<Song?>(null) }
+    var showCreatePlaylistDialog by remember { mutableStateOf(false) }
+
+    if (showCreatePlaylistDialog) {
+        CreatePlaylistDialog(
+            onDismiss = { showCreatePlaylistDialog = false },
+            onConfirm = { name ->
+                onCreatePlaylist(name)
+                showCreatePlaylistDialog = false
+            }
+        )
+    }
+
+    if (songToAddToPlaylist != null) {
+        AddToPlaylistDialog(
+            playlists = playlists,
+            onDismiss = { songToAddToPlaylist = null },
+            onPlaylistSelected = { playlist ->
+                onAddSongToPlaylist(playlist.id, songToAddToPlaylist!!)
+                songToAddToPlaylist = null
+            },
+            onCreateNewClick = {
+                songToAddToPlaylist = null
+                showCreatePlaylistDialog = true
+            }
+        )
+    }
 
     Column(
         modifier = modifier.fillMaxSize()
@@ -81,7 +115,7 @@ fun LibraryScreen(
             singleLine = true
         )
 
-        ScrollableTabRow(
+        PrimaryScrollableTabRow(
             selectedTabIndex = selectedTabIndex,
             edgePadding = 20.dp
         ) {
@@ -97,7 +131,7 @@ fun LibraryScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 4.dp),
+                .padding(horizontal = 20.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             val countText = when(selectedTabIndex) {
@@ -106,6 +140,7 @@ fun LibraryScreen(
                 2 -> "${artists.size} artistas"
                 3 -> "${folders.size} carpetas"
                 4 -> "${genres.size} géneros"
+                5 -> "${playlists.size} playlists"
                 else -> ""
             }
             Text(
@@ -163,7 +198,8 @@ fun LibraryScreen(
                                 song = song,
                                 onClick = { onSongClick(song) },
                                 isFavorite = favoriteSongIds.contains(song.id),
-                                onToggleFavorite = { onToggleFavorite(song, favoriteSongIds.contains(song.id)) }
+                                onToggleFavorite = { onToggleFavorite(song, favoriteSongIds.contains(song.id)) },
+                                onAddToPlaylist = { songToAddToPlaylist = song }
                             )
                             HorizontalDivider()
                         }
@@ -248,6 +284,30 @@ fun LibraryScreen(
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
+                            }
+                            HorizontalDivider()
+                        }
+                    }
+                    5 -> {
+                        item {
+                            Row(
+                                modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp).clickable { showCreatePlaylistDialog = true }
+                            ) {
+                                Text("➕ Nueva Playlist", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.primary)
+                            }
+                            HorizontalDivider()
+                        }
+                        items(
+                            items = playlists,
+                            key = { it.id }
+                        ) { playlist ->
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { onPlaylistClick(playlist) }
+                                    .padding(horizontal = 20.dp, vertical = 12.dp)
+                            ) {
+                                Text(playlist.name, style = MaterialTheme.typography.bodyLarge)
                             }
                             HorizontalDivider()
                         }
