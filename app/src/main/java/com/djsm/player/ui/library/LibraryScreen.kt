@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
@@ -65,6 +67,7 @@ fun LibraryScreen(
     onFolderClick: (Folder) -> Unit,
     onGenreClick: (Genre) -> Unit,
     onPlaylistClick: (Playlist) -> Unit,
+    onSettingsClick: () -> Unit,
     onCreatePlaylist: (String) -> Unit,
     onAddSongToPlaylist: (String, Song) -> Unit,
     modifier: Modifier = Modifier,
@@ -104,11 +107,23 @@ fun LibraryScreen(
     Column(
         modifier = modifier.fillMaxSize()
     ) {
-        Text(
-            text = "DJSM Player",
-            style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.padding(start = 20.dp, top = 24.dp, end = 20.dp)
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(start = 20.dp, top = 24.dp, end = 20.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "DJSM Player",
+                style = MaterialTheme.typography.headlineMedium,
+                modifier = Modifier.weight(1f)
+            )
+            IconButton(onClick = onSettingsClick) {
+                androidx.compose.material3.Icon(
+                    imageVector = Icons.Filled.Settings,
+                    contentDescription = "Ajustes",
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
+            }
+        }
 
         OutlinedTextField(
             value = searchQuery,

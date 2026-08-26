@@ -15,3 +15,5 @@ data class GenreDetailRoute(val genreId: Long) : AppRoute
 data class PlaylistDetailRoute(val playlistId: String) : AppRoute
 
 data object NowPlayingRoute : AppRoute
+
+data object SettingsRoute : AppRoute

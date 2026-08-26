@@ -85,6 +85,7 @@ fun DJSMPlayerApp() {
     }
 
     val libraryViewModel: com.djsm.player.ui.library.LibraryViewModel = androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel()
+    val settingsViewModel: com.djsm.player.ui.settings.SettingsViewModel = androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel()
 
     NavDisplay(
         backStack = backStack,
@@ -170,6 +171,9 @@ fun DJSMPlayerApp() {
                                 },
                                 onPlaylistClick = { playlistId ->
                                     backStack.add(com.djsm.player.navigation.PlaylistDetailRoute(playlistId))
+                                },
+                                onSettingsClick = {
+                                    backStack.add(com.djsm.player.navigation.SettingsRoute)
                                 },
                                 modifier = Modifier.padding(innerPadding)
                             )
@@ -432,6 +436,15 @@ fun DJSMPlayerApp() {
                             onSeek = { positionMs ->
                                 currentPlaybackController?.seekTo(positionMs)
                             }
+                        )
+                    }
+                }
+
+                com.djsm.player.navigation.SettingsRoute -> {
+                    NavEntry(route) {
+                        com.djsm.player.ui.settings.SettingsRoute(
+                            onBack = { backStack.removeLastOrNull() },
+                            viewModel = settingsViewModel
                         )
                     }
                 }

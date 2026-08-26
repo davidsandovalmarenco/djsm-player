@@ -105,7 +105,8 @@ private fun Player.toPlaybackUiState(): PlaybackUiState {
         isPlaying = isPlaying,
         hasMedia = currentItem != null,
         positionMs = currentPosition.coerceAtLeast(0L),
-        durationMs = safeDuration
-
+        durationMs = safeDuration,
+        shuffleEnabled = shuffleModeEnabled,
+        repeatMode = repeatMode
     )
 }

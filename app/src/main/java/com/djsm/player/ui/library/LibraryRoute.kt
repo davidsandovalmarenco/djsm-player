@@ -26,6 +26,7 @@ fun LibraryRoute(
     onFolderClick: (String) -> Unit,
     onGenreClick: (Long) -> Unit,
     onPlaylistClick: (String) -> Unit,
+    onSettingsClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -79,6 +80,7 @@ fun LibraryRoute(
                 onFolderClick = {},
                 onGenreClick = {},
                 onPlaylistClick = {},
+                onSettingsClick = onSettingsClick,
                 onCreatePlaylist = viewModel::createPlaylist,
                 onAddSongToPlaylist = viewModel::addSongToPlaylist,
                 modifier = modifier,
@@ -143,6 +145,7 @@ fun LibraryRoute(
                 onPlaylistClick = { playlist ->
                     onPlaylistClick(playlist.id)
                 },
+                onSettingsClick = onSettingsClick,
                 onCreatePlaylist = viewModel::createPlaylist,
                 onAddSongToPlaylist = viewModel::addSongToPlaylist,
                 modifier = modifier,
