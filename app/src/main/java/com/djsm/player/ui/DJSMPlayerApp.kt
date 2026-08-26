@@ -119,6 +119,9 @@ fun DJSMPlayerApp() {
                                             }
                                         }
                                     },
+                                    onNextClick = {
+                                        currentPlaybackController?.seekToNextMediaItem()
+                                    },
                                     onClick = {
                                         backStack.add(NowPlayingRoute)
                                     }
@@ -185,6 +188,9 @@ fun DJSMPlayerApp() {
                                             if (controller.isPlaying) controller.pause() else controller.play()
                                         }
                                     },
+                                    onNextClick = {
+                                        currentPlaybackController?.seekToNextMediaItem()
+                                    },
                                     onClick = {
                                         backStack.add(NowPlayingRoute)
                                     }
@@ -222,6 +228,9 @@ fun DJSMPlayerApp() {
                                         currentPlaybackController?.let { controller ->
                                             if (controller.isPlaying) controller.pause() else controller.play()
                                         }
+                                    },
+                                    onNextClick = {
+                                        currentPlaybackController?.seekToNextMediaItem()
                                     },
                                     onClick = {
                                         backStack.add(NowPlayingRoute)
@@ -261,6 +270,9 @@ fun DJSMPlayerApp() {
                                             if (controller.isPlaying) controller.pause() else controller.play()
                                         }
                                     },
+                                    onNextClick = {
+                                        currentPlaybackController?.seekToNextMediaItem()
+                                    },
                                     onClick = {
                                         backStack.add(NowPlayingRoute)
                                     }
@@ -299,6 +311,9 @@ fun DJSMPlayerApp() {
                                             if (controller.isPlaying) controller.pause() else controller.play()
                                         }
                                     },
+                                    onNextClick = {
+                                        currentPlaybackController?.seekToNextMediaItem()
+                                    },
                                     onClick = {
                                         backStack.add(NowPlayingRoute)
                                     }
@@ -336,6 +351,9 @@ fun DJSMPlayerApp() {
                                         currentPlaybackController?.let { controller ->
                                             if (controller.isPlaying) controller.pause() else controller.play()
                                         }
+                                    },
+                                    onNextClick = {
+                                        currentPlaybackController?.seekToNextMediaItem()
                                     },
                                     onClick = {
                                         backStack.add(NowPlayingRoute)

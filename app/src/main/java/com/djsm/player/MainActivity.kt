@@ -5,7 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.djsm.player.ui.DJSMPlayerApp
-import com.djsm.player.ui.theme.DJSMPlayerTheme
+import com.djsm.player.core.designsystem.theme.DJSMPlayerTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
