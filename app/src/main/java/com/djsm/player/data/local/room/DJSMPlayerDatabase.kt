@@ -9,14 +9,16 @@ import androidx.sqlite.db.SupportSQLiteDatabase
     entities = [
         FavoriteEntity::class,
         PlaylistEntity::class,
-        PlaylistSongEntity::class
+        PlaylistSongEntity::class,
+        PlaybackHistoryEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = true
 )
 abstract class DJSMPlayerDatabase : RoomDatabase() {
     abstract fun favoriteDao(): FavoriteDao
     abstract fun playlistDao(): PlaylistDao
+    abstract fun historyDao(): HistoryDao
 
     companion object {
         val MIGRATION_1_2 = object : Migration(1, 2) {
@@ -51,6 +53,27 @@ abstract class DJSMPlayerDatabase : RoomDatabase() {
                 // Create indices for playlist_songs
                 db.execSQL("CREATE INDEX IF NOT EXISTS `index_playlist_songs_playlistId` ON `playlist_songs` (`playlistId`)")
                 db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_playlist_songs_playlistId_fingerprint` ON `playlist_songs` (`playlistId`, `fingerprint`)")
+            }
+        }
+
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS `playback_history` (
+                        `eventId` TEXT NOT NULL, 
+                        `mediaStoreId` INTEGER NOT NULL, 
+                        `fingerprint` TEXT NOT NULL, 
+                        `playedAt` INTEGER NOT NULL, 
+                        `snapshotTitle` TEXT NOT NULL, 
+                        `snapshotArtist` TEXT NOT NULL, 
+                        `durationMs` INTEGER NOT NULL,
+                        PRIMARY KEY(`eventId`)
+                    )
+                    """.trimIndent()
+                )
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_playback_history_fingerprint` ON `playback_history` (`fingerprint`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_playback_history_playedAt` ON `playback_history` (`playedAt`)")
             }
         }
     }

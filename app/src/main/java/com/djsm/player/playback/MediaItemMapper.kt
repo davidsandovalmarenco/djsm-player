@@ -9,6 +9,9 @@ fun Song.toMediaItem(): MediaItem {
 
     val extras = Bundle().apply {
         putLong("albumId", albumId)
+        putLong("mediaStoreId", id)
+        putString("fingerprint", fingerprint)
+        putLong("durationMs", durationMs)
     }
 
     return MediaItem.Builder()

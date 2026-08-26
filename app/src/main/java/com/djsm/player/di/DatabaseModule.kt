@@ -28,7 +28,7 @@ object DatabaseModule {
             DJSMPlayerDatabase::class.java,
             "djsm_player_database"
         )
-            .addMigrations(DJSMPlayerDatabase.MIGRATION_1_2)
+            .addMigrations(DJSMPlayerDatabase.MIGRATION_1_2, DJSMPlayerDatabase.MIGRATION_2_3)
             .build()
     }
 
@@ -40,6 +40,11 @@ object DatabaseModule {
     @Provides
     fun providePlaylistDao(database: DJSMPlayerDatabase): com.djsm.player.data.local.room.PlaylistDao {
         return database.playlistDao()
+    }
+
+    @Provides
+    fun provideHistoryDao(database: DJSMPlayerDatabase): com.djsm.player.data.local.room.HistoryDao {
+        return database.historyDao()
     }
 }
 

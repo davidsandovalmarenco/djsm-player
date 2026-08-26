@@ -19,6 +19,8 @@ import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
+import androidx.compose.material3.Button
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -46,6 +48,9 @@ fun LibraryScreen(
     folders: List<Folder>,
     genres: List<Genre>,
     playlists: List<Playlist>,
+    historyEvents: List<com.djsm.player.domain.repository.HistoryEvent>,
+    recentlyPlayed: List<com.djsm.player.domain.repository.HistoryAggregateItem>,
+    mostPlayed: List<com.djsm.player.domain.repository.HistoryAggregateItem>,
     favoriteSongIds: Set<Long>,
     searchQuery: String,
     onSearchQueryChange: (String) -> Unit,
@@ -66,7 +71,7 @@ fun LibraryScreen(
     isNoSearchResults: Boolean = false
 ) {
     var selectedTabIndex by remember { mutableIntStateOf(0) }
-    val tabs = listOf("Songs", "Albums", "Artists", "Folders", "Genres", "Playlists")
+    val tabs = listOf("Songs", "Albums", "Artists", "Folders", "Genres", "Playlists", "History", "Recent", "Most Played")
 
     var songToAddToPlaylist by remember { mutableStateOf<Song?>(null) }
     var showCreatePlaylistDialog by remember { mutableStateOf(false) }
@@ -312,8 +317,87 @@ fun LibraryScreen(
                             HorizontalDivider()
                         }
                     }
+                    6 -> {
+                        item {
+                            HistoryList(events = historyEvents)
+                        }
+                    }
+                    7 -> {
+                        item {
+                            HistoryAggregateList(items = recentlyPlayed)
+                        }
+                    }
+                    8 -> {
+                        item {
+                            HistoryAggregateList(items = mostPlayed)
+                        }
+                    }
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun PlaylistList(
+    playlists: List<com.djsm.player.domain.model.Playlist>,
+    onCreatePlaylistClick: () -> Unit,
+    onPlaylistClick: (com.djsm.player.domain.model.Playlist) -> Unit
+) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(16.dp)
+    ) {
+        item {
+            Button(
+                onClick = onCreatePlaylistClick,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp)
+            ) {
+                Text("Create Playlist")
+            }
+        }
+        items(playlists) { playlist ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onPlaylistClick(playlist) }
+                    .padding(vertical = 12.dp)
+            ) {
+                Text(
+                    text = playlist.name,
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+            HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f))
+        }
+    }
+}
+
+@Composable
+fun HistoryList(events: List<com.djsm.player.domain.repository.HistoryEvent>) {
+    LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp)) {
+        items(events) { event ->
+            Column(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+                Text(text = "${event.snapshotTitle} by ${event.snapshotArtist}", style = MaterialTheme.typography.bodyLarge)
+                Text(text = "Played at: ${event.playedAt}", style = MaterialTheme.typography.bodyMedium)
+            }
+            HorizontalDivider()
+        }
+    }
+}
+
+@Composable
+fun HistoryAggregateList(items: List<com.djsm.player.domain.repository.HistoryAggregateItem>) {
+    LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp)) {
+        items(items) { item ->
+            Column(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+                Text(text = "Fingerprint: ${item.fingerprint.take(8)}...", style = MaterialTheme.typography.bodyLarge)
+                Text(text = "Plays: ${item.playCount} | Last: ${item.lastPlayedAt}", style = MaterialTheme.typography.bodyMedium)
+            }
+            HorizontalDivider()
         }
     }
 }

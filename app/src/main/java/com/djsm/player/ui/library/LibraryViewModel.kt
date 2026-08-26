@@ -37,7 +37,10 @@ class LibraryViewModel @Inject constructor(
     private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
     private val observePlaylistsUseCase: ObservePlaylistsUseCase,
     private val createPlaylistUseCase: CreatePlaylistUseCase,
-    private val addSongToPlaylistUseCase: AddSongToPlaylistUseCase
+    private val addSongToPlaylistUseCase: AddSongToPlaylistUseCase,
+    private val observeHistoryUseCase: com.djsm.player.domain.usecase.history.ObserveHistoryUseCase,
+    private val observeRecentlyPlayedUseCase: com.djsm.player.domain.usecase.history.ObserveRecentlyPlayedUseCase,
+    private val observeMostPlayedUseCase: com.djsm.player.domain.usecase.history.ObserveMostPlayedUseCase
 ) : ViewModel() {
 
     private val _searchQuery = MutableStateFlow("")
@@ -53,11 +56,19 @@ class LibraryViewModel @Inject constructor(
         musicRepository.observeSongs(),
         observeFavoritesUseCase(),
         observePlaylistsUseCase(),
+        combine(
+            observeHistoryUseCase(),
+            observeRecentlyPlayedUseCase(),
+            observeMostPlayedUseCase()
+        ) { history, recent, most -> Triple(history, recent, most) },
         combine(_searchQuery.debounce(300).distinctUntilChanged(), _sortOption, _sortOrder) { q, opt, ord -> Triple(q, opt, ord) }
-    ) { songs, favorites, playlists, searchSortArgs ->
+    ) { songs, favorites, playlists, historyTri, searchSortArgs ->
         val query = searchSortArgs.first
         val option = searchSortArgs.second
         val order = searchSortArgs.third
+        val historyEvents = historyTri.first
+        val recentlyPlayed = historyTri.second
+        val mostPlayed = historyTri.third
         
         if (songs.isEmpty()) {
             return@combine LibraryUiState.Empty
@@ -200,7 +211,10 @@ class LibraryViewModel @Inject constructor(
             folders = sortedFolders,
             genres = sortedGenres,
             playlists = playlists,
-            favoriteSongIds = resolvedFavoriteIds
+            favoriteSongIds = resolvedFavoriteIds,
+            historyEvents = historyEvents,
+            recentlyPlayed = recentlyPlayed,
+            mostPlayed = mostPlayed
         )
     }
     .flowOn(Dispatchers.Default)
