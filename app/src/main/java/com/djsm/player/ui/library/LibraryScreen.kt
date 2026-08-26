@@ -318,18 +318,30 @@ fun LibraryScreen(
                         }
                     }
                     6 -> {
-                        item {
-                            HistoryList(events = historyEvents)
+                        items(historyEvents) { event ->
+                            Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp)) {
+                                Text(text = "${event.snapshotTitle} by ${event.snapshotArtist}", style = MaterialTheme.typography.bodyLarge)
+                                Text(text = "Played at: ${event.playedAt}", style = MaterialTheme.typography.bodyMedium)
+                            }
+                            HorizontalDivider()
                         }
                     }
                     7 -> {
-                        item {
-                            HistoryAggregateList(items = recentlyPlayed)
+                        items(recentlyPlayed) { item ->
+                            Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp)) {
+                                Text(text = "Fingerprint: ${item.fingerprint.take(8)}...", style = MaterialTheme.typography.bodyLarge)
+                                Text(text = "Plays: ${item.playCount} | Last: ${item.lastPlayedAt}", style = MaterialTheme.typography.bodyMedium)
+                            }
+                            HorizontalDivider()
                         }
                     }
                     8 -> {
-                        item {
-                            HistoryAggregateList(items = mostPlayed)
+                        items(mostPlayed) { item ->
+                            Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp)) {
+                                Text(text = "Fingerprint: ${item.fingerprint.take(8)}...", style = MaterialTheme.typography.bodyLarge)
+                                Text(text = "Plays: ${item.playCount} | Last: ${item.lastPlayedAt}", style = MaterialTheme.typography.bodyMedium)
+                            }
+                            HorizontalDivider()
                         }
                     }
                 }
@@ -375,29 +387,4 @@ fun PlaylistList(
         }
     }
 }
-
-@Composable
-fun HistoryList(events: List<com.djsm.player.domain.repository.HistoryEvent>) {
-    LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp)) {
-        items(events) { event ->
-            Column(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
-                Text(text = "${event.snapshotTitle} by ${event.snapshotArtist}", style = MaterialTheme.typography.bodyLarge)
-                Text(text = "Played at: ${event.playedAt}", style = MaterialTheme.typography.bodyMedium)
-            }
-            HorizontalDivider()
-        }
-    }
-}
-
-@Composable
-fun HistoryAggregateList(items: List<com.djsm.player.domain.repository.HistoryAggregateItem>) {
-    LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp)) {
-        items(items) { item ->
-            Column(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
-                Text(text = "Fingerprint: ${item.fingerprint.take(8)}...", style = MaterialTheme.typography.bodyLarge)
-                Text(text = "Plays: ${item.playCount} | Last: ${item.lastPlayedAt}", style = MaterialTheme.typography.bodyMedium)
-            }
-            HorizontalDivider()
-        }
-    }
-}
+
