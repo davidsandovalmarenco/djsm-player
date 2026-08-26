@@ -50,6 +50,14 @@ class PlaybackService : MediaSessionService() {
         override fun onRepeatModeChanged(repeatMode: Int) {
             scheduleSaveQueue()
         }
+        override fun onPlayerError(error: androidx.media3.common.PlaybackException) {
+            // If a file is deleted or corrupt, automatically skip to the next track
+            val player = mediaSession?.player ?: return
+            if (player.hasNextMediaItem()) {
+                player.seekToNextMediaItem()
+                player.play()
+            }
+        }
     }
 
     override fun onCreate() {
