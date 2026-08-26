@@ -40,7 +40,13 @@ import com.djsm.player.domain.model.Playlist
 import com.djsm.player.domain.model.Song
 import com.djsm.player.domain.model.SortOption
 import com.djsm.player.domain.model.SortOrder
+import com.djsm.player.ui.components.CategoryListItem
 import com.djsm.player.ui.components.SongListItem
+import androidx.compose.material.icons.filled.Album
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material.icons.filled.Category
+import androidx.compose.material.icons.filled.QueueMusic
 
 @Composable
 fun LibraryScreen(
@@ -229,19 +235,12 @@ fun LibraryScreen(
                             items = albums,
                             key = { it.id }
                         ) { album ->
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable { onAlbumClick(album) }
-                                    .padding(horizontal = 20.dp, vertical = 12.dp)
-                            ) {
-                                Text(album.name, style = MaterialTheme.typography.bodyLarge)
-                                Text(
-                                    text = "${album.artist} • ${album.songCount} canciones",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
+                            CategoryListItem(
+                                title = album.name,
+                                subtitle = "${album.artist} • ${album.songCount} canciones",
+                                icon = androidx.compose.material.icons.Icons.Filled.Album,
+                                onClick = { onAlbumClick(album) }
+                            )
                             HorizontalDivider()
                         }
                     }
@@ -250,19 +249,12 @@ fun LibraryScreen(
                             items = artists,
                             key = { it.id }
                         ) { artist ->
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable { onArtistClick(artist) }
-                                    .padding(horizontal = 20.dp, vertical = 12.dp)
-                            ) {
-                                Text(artist.name, style = MaterialTheme.typography.bodyLarge)
-                                Text(
-                                    text = "${artist.albumCount} álbumes • ${artist.songCount} canciones",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
+                            CategoryListItem(
+                                title = artist.name,
+                                subtitle = "${artist.albumCount} álbumes • ${artist.songCount} canciones",
+                                icon = androidx.compose.material.icons.Icons.Filled.Person,
+                                onClick = { onArtistClick(artist) }
+                            )
                             HorizontalDivider()
                         }
                     }
@@ -271,19 +263,12 @@ fun LibraryScreen(
                             items = folders,
                             key = { it.id }
                         ) { folder ->
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable { onFolderClick(folder) }
-                                    .padding(horizontal = 20.dp, vertical = 12.dp)
-                            ) {
-                                Text(folder.name, style = MaterialTheme.typography.bodyLarge)
-                                Text(
-                                    text = "${folder.songCount} canciones",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
+                            CategoryListItem(
+                                title = folder.name,
+                                subtitle = "${folder.songCount} canciones",
+                                icon = androidx.compose.material.icons.Icons.Filled.Folder,
+                                onClick = { onFolderClick(folder) }
+                            )
                             HorizontalDivider()
                         }
                     }
@@ -292,19 +277,12 @@ fun LibraryScreen(
                             items = genres,
                             key = { it.id }
                         ) { genre ->
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable { onGenreClick(genre) }
-                                    .padding(horizontal = 20.dp, vertical = 12.dp)
-                            ) {
-                                Text(genre.name, style = MaterialTheme.typography.bodyLarge)
-                                Text(
-                                    text = "${genre.songCount} canciones",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
+                            CategoryListItem(
+                                title = genre.name,
+                                subtitle = "${genre.songCount} canciones",
+                                icon = androidx.compose.material.icons.Icons.Filled.Category,
+                                onClick = { onGenreClick(genre) }
+                            )
                             HorizontalDivider()
                         }
                     }
@@ -321,14 +299,12 @@ fun LibraryScreen(
                             items = playlists,
                             key = { it.id }
                         ) { playlist ->
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable { onPlaylistClick(playlist) }
-                                    .padding(horizontal = 20.dp, vertical = 12.dp)
-                            ) {
-                                Text(playlist.name, style = MaterialTheme.typography.bodyLarge)
-                            }
+                            CategoryListItem(
+                                title = playlist.name,
+                                subtitle = "Playlist",
+                                icon = androidx.compose.material.icons.Icons.Filled.QueueMusic,
+                                onClick = { onPlaylistClick(playlist) }
+                            )
                             HorizontalDivider()
                         }
                     }
