@@ -55,7 +55,14 @@ class PlaybackService : MediaSessionService() {
     override fun onCreate() {
         super.onCreate()
 
+        val audioAttributes = androidx.media3.common.AudioAttributes.Builder()
+            .setContentType(androidx.media3.common.C.AUDIO_CONTENT_TYPE_MUSIC)
+            .setUsage(androidx.media3.common.C.USAGE_MEDIA)
+            .build()
+
         val player = ExoPlayer.Builder(this)
+            .setAudioAttributes(audioAttributes, true) // true handles audio focus automatically
+            .setHandleAudioBecomingNoisy(true) // pauses playback when headset is unplugged
             .build()
             
         player.addListener(playerListener)
