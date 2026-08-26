@@ -8,6 +8,8 @@ import com.djsm.player.domain.repository.FavoriteRepository
 import com.djsm.player.domain.repository.HistoryRepository
 import com.djsm.player.domain.repository.MusicRepository
 import com.djsm.player.domain.repository.PlaylistRepository
+import com.djsm.player.domain.repository.QueueRepository
+import com.djsm.player.data.repository.QueueRepositoryImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -39,6 +41,12 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindHistoryRepository(
-        implementation: HistoryRepositoryImpl
+        historyRepositoryImpl: HistoryRepositoryImpl
     ): HistoryRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindQueueRepository(
+        queueRepositoryImpl: QueueRepositoryImpl
+    ): QueueRepository
 }

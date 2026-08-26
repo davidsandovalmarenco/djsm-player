@@ -10,15 +10,18 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         FavoriteEntity::class,
         PlaylistEntity::class,
         PlaylistSongEntity::class,
-        PlaybackHistoryEntity::class
+        PlaybackHistoryEntity::class,
+        QueueEntity::class,
+        PlaybackStateEntity::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = true
 )
 abstract class DJSMPlayerDatabase : RoomDatabase() {
     abstract fun favoriteDao(): FavoriteDao
     abstract fun playlistDao(): PlaylistDao
     abstract fun historyDao(): HistoryDao
+    abstract fun queueDao(): QueueDao
 
     companion object {
         val MIGRATION_1_2 = object : Migration(1, 2) {
@@ -74,6 +77,33 @@ abstract class DJSMPlayerDatabase : RoomDatabase() {
                 )
                 db.execSQL("CREATE INDEX IF NOT EXISTS `index_playback_history_fingerprint` ON `playback_history` (`fingerprint`)")
                 db.execSQL("CREATE INDEX IF NOT EXISTS `index_playback_history_playedAt` ON `playback_history` (`playedAt`)")
+            }
+        }
+
+        val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS `playback_queue` (
+                        `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
+                        `mediaStoreId` INTEGER NOT NULL, 
+                        `fingerprint` TEXT NOT NULL, 
+                        `sortIndex` INTEGER NOT NULL
+                    )
+                    """.trimIndent()
+                )
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS `playback_state` (
+                        `id` INTEGER NOT NULL, 
+                        `currentMediaId` TEXT, 
+                        `currentPositionMs` INTEGER NOT NULL, 
+                        `repeatMode` INTEGER NOT NULL, 
+                        `shuffleModeEnabled` INTEGER NOT NULL, 
+                        PRIMARY KEY(`id`)
+                    )
+                    """.trimIndent()
+                )
             }
         }
     }
